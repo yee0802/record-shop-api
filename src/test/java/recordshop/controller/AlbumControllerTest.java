@@ -2,6 +2,7 @@ package recordshop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -17,6 +18,7 @@ import recordshop.model.Genre;
 import recordshop.service.AlbumServiceImpl;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +45,8 @@ public class AlbumControllerTest {
     }
 
     @Test
-    public void testGetAllBooksReturnsBooks() throws Exception {
+    @DisplayName("GET /albums returns all albums")
+    public void testGetAllAlbumsReturnsAlbums() throws Exception {
         List<Album> albumList = new ArrayList<>();
         albumList.add(new Album(1L, "album1", "John", Genre.Classical, 2024, LocalDateTime.now(), LocalDateTime.now()));
         albumList.add(new Album(2L, "album2", "Jane", Genre.Blues, 1978, LocalDateTime.now(), LocalDateTime.now()));
@@ -60,5 +63,27 @@ public class AlbumControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value("album2"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].id  ").value(3))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[2].name").value("album3"));
+    }
+
+    @Test
+    @DisplayName("GET /albums/:id returns album")
+    public void testGetAlbumByIdReturnsAlbum() throws Exception {
+        Album expectedAlbum = new Album(1L, "album", "John", Genre.Classical, 2024, LocalDateTime.now(), LocalDateTime.now());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        String formattedTime = LocalDateTime.now().format(formatter);
+
+        when(mockAlbumServiceImpl.getAlbumById(1L)).thenReturn(expectedAlbum);
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.get("/albums/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("album"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.artist").value("John"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value(String.valueOf(Genre.Classical)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2024))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").value(formattedTime))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.modifiedAt").value(formattedTime));
     }
 }
