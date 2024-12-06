@@ -3,40 +3,42 @@ package recordshop.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Getter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Entity
 public class Album {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String artist;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Genre genre;
 
-    @Column(name = "release_year")
+    @Column(name = "release_year", nullable = false)
     private Integer releaseYear;
 
     @Column(name = "created_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
+    @UpdateTimestamp
     private LocalDateTime modifiedAt;
 }
