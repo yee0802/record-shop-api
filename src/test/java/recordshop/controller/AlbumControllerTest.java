@@ -1,6 +1,7 @@
 package recordshop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -42,10 +44,11 @@ public class AlbumControllerTest {
     public void setup(){
         mockMvcController = MockMvcBuilders.standaloneSetup(albumController).build();
         mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
     }
 
     @Test
-    @DisplayName("GET /albums returns all albums")
+    @DisplayName("GET /albums - returns all albums")
     public void testGetAllAlbumsReturnsAlbums() throws Exception {
         List<Album> albumList = new ArrayList<>();
         albumList.add(new Album(1L, "album1", "John", Genre.Classical, 2024, LocalDateTime.now(), LocalDateTime.now()));
@@ -66,14 +69,14 @@ public class AlbumControllerTest {
     }
 
     @Test
-    @DisplayName("GET /albums/:id returns album")
+    @DisplayName("GET /albums/:id - returns album")
     public void testGetAlbumByIdReturnsAlbum() throws Exception {
-        Album expectedAlbum = new Album(1L, "album", "John", Genre.Classical, 2024, LocalDateTime.now(), LocalDateTime.now());
+        Album album = new Album(1L, "album", "John", Genre.Classical, 2024, LocalDateTime.now(), LocalDateTime.now());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         String formattedTime = LocalDateTime.now().format(formatter);
 
-        when(mockAlbumServiceImpl.getAlbumById(1L)).thenReturn(expectedAlbum);
+        when(mockAlbumServiceImpl.getAlbumById(1L)).thenReturn(album);
 
         this.mockMvcController.perform(
                         MockMvcRequestBuilders.get("/albums/1"))
@@ -85,5 +88,26 @@ public class AlbumControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2024))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.createdAt").value(formattedTime))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.modifiedAt").value(formattedTime));
+    }
+
+    @Test
+    @DisplayName("POST /albums - should persist & return new album")
+    public void testAddAlbumReturnsNewAlbum() throws Exception {
+        Album album = new Album(1L, "album", "John", Genre.Classical, 2024, null, null);
+
+        when(mockAlbumServiceImpl.addAlbum(album)).thenReturn(album);
+
+        String albumJSON = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(album);
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.post("/albums")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(albumJSON))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("album"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.artist").value("John"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value(String.valueOf(Genre.Classical)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2024));
     }
 }

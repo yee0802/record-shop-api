@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import recordshop.exception.ItemNotFoundException;
+import recordshop.exception.MissingFieldException;
 import recordshop.model.Album;
 import recordshop.model.Genre;
 import recordshop.repository.AlbumRepository;
@@ -72,5 +73,33 @@ public class AlbumServiceTest {
         assertThrows(ItemNotFoundException.class, () -> albumServiceImpl.getAlbumById(1L));
 
         verify(mockAlbumRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("addAlbum: should return new album")
+    public void testAddAlbumReturnsAlbum() {
+        Album album = new Album(1L, "album", "album maker", Genre.Rock, 2000, LocalDateTime.now(), LocalDateTime.now());
+
+        when(mockAlbumRepository.save(album)).thenReturn(album);
+
+        Album result = albumServiceImpl.addAlbum(album);
+
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(album);
+
+        verify(mockAlbumRepository, times(1)).save(album);
+    }
+
+    @Test
+    @DisplayName("addAlbum: should throw MissingFieldException when attempting to add a Album with missing/null fields")
+    public void testAddAlbumThrowsWhenMissingFields() {
+        Album invalidAlbum = new Album();
+        invalidAlbum.setName(null);
+        invalidAlbum.setGenre(Genre.Blues);
+
+        when(mockAlbumRepository.save(invalidAlbum))
+                .thenThrow(new MissingFieldException("Missing field(s) in request body"));
+
+        assertThrows(MissingFieldException.class, () -> albumServiceImpl.addAlbum(invalidAlbum));
     }
 }
