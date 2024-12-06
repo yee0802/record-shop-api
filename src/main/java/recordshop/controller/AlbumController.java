@@ -3,10 +3,7 @@ package recordshop.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import recordshop.model.Album;
 import recordshop.service.AlbumService;
 
@@ -29,5 +26,10 @@ public class AlbumController {
     @GetMapping("/{id}")
     public ResponseEntity<Album> getAlbumById(@PathVariable Long id) {
         return new ResponseEntity<>(albumService.getAlbumById(id), HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<Album> addAlbum(@RequestBody Album album) {
+        return new ResponseEntity<>(albumService.addAlbum(album), HttpStatus.CREATED);
     }
 }
