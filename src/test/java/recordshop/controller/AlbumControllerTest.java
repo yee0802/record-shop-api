@@ -26,6 +26,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @AutoConfigureMockMvc
@@ -132,7 +133,7 @@ public class AlbumControllerTest {
         String updatedAlbumJSON = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(updatedAlbum);
 
         this.mockMvcController.perform(
-                        MockMvcRequestBuilders.put("/albums/{id}", albumId)
+                        MockMvcRequestBuilders.put("/albums/1")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(updatedAlbumJSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -141,5 +142,15 @@ public class AlbumControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.artist").value("updated artist"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value("Classical"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2025));
+    }
+
+    @Test
+    @DisplayName("DELETE /albums/:id - should return string stating album was deleted")
+    public void testDeleteAlbumById() throws Exception {
+        doNothing().when(mockAlbumServiceImpl).deleteAlbumById(1L);
+
+        this.mockMvcController.perform(MockMvcRequestBuilders.delete("/albums/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Album with id '1' successfully deleted"));
     }
 }

@@ -130,4 +130,27 @@ public class AlbumServiceTest {
         verify(mockAlbumRepository, times(1)).findById(albumId);
         verify(mockAlbumRepository, times(1)).save(any(Album.class));
     }
+
+    @Test
+    @DisplayName("deleteById: should delete album if present")
+    public void testDeleteByIdDeletesAlbum() {
+        Album album = new Album(1L, "album", "album maker", Genre.Rock, 2000, LocalDateTime.now(), LocalDateTime.now());
+
+        when(mockAlbumRepository.findById(1L)).thenReturn(Optional.of(album));
+
+        albumServiceImpl.deleteAlbumById(1L);
+
+        verify(mockAlbumRepository, times(1)).findById(1L);
+        verify(mockAlbumRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deleteById: should throw ItemNotFoundException if no album is present")
+    public void testDeleteByIdThrowsException() {
+        when(mockAlbumRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ItemNotFoundException.class, () -> albumServiceImpl.deleteAlbumById(1L));
+
+        verify(mockAlbumRepository, times(1)).findById(1L);
+    }
 }
