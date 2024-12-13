@@ -10,7 +10,6 @@ import recordshop.repository.AlbumRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -30,13 +29,8 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     public Album getAlbumById(Long id) {
-        Optional<Album> foundAlbum = albumRepository.findById(id);
-
-        if (foundAlbum.isEmpty()) {
-            throw new ItemNotFoundException(String.format("Item with id '%s' could not be found", id));
-        }
-
-        return foundAlbum.get();
+        return albumRepository.findById(id)
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Item with id '%s' could not be found", id)));
     }
 
     @Override
@@ -55,5 +49,27 @@ public class AlbumServiceImpl implements AlbumService {
         newAlbum.setReleaseYear(album.getReleaseYear());
 
         return albumRepository.save(album);
+    }
+
+    @Override
+    public Album updateAlbumById(Long id, Album album) {
+        Album foundAlbum = albumRepository.findById(id).orElseThrow(() -> new ItemNotFoundException(String.format("Item with id '%s' could not be found", id)));
+
+        boolean isValid = Stream.of(album.getName(),
+                        album.getArtist(),
+                        album.getGenre(),
+                        album.getReleaseYear())
+                .allMatch(Objects::nonNull);
+
+        if (!isValid) {
+            throw new MissingFieldException("Missing field(s) in request body");
+        }
+
+        foundAlbum.setName(album.getName());
+        foundAlbum.setArtist(album.getArtist());
+        foundAlbum.setGenre(album.getGenre());
+        foundAlbum.setReleaseYear(album.getReleaseYear());
+
+        return albumRepository.save(foundAlbum);
     }
 }
