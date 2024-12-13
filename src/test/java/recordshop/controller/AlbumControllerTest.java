@@ -24,6 +24,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @AutoConfigureMockMvc
@@ -109,5 +111,35 @@ public class AlbumControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.artist").value("John"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value(String.valueOf(Genre.Classical)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2024));
+    }
+
+    @Test
+    @DisplayName("PUT /albums/:id - should return updated album")
+    public void testUpdateAlbumByIdReturnsUpdatedAlbum() throws Exception {
+        Long albumId = 1L;
+        Album updatedAlbum = new Album(
+                albumId,
+                "updated album name",
+                "updated artist",
+                Genre.Classical,
+                2025,
+                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now()
+        );
+
+        when(mockAlbumServiceImpl.updateAlbumById(eq(albumId), any(Album.class))).thenReturn(updatedAlbum);
+
+        String updatedAlbumJSON = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(updatedAlbum);
+
+        this.mockMvcController.perform(
+                        MockMvcRequestBuilders.put("/albums/{id}", albumId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updatedAlbumJSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(albumId))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("updated album name"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.artist").value("updated artist"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value("Classical"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2025));
     }
 }

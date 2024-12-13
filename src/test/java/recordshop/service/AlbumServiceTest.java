@@ -102,4 +102,32 @@ public class AlbumServiceTest {
 
         assertThrows(MissingFieldException.class, () -> albumServiceImpl.addAlbum(invalidAlbum));
     }
+
+    @Test
+    @DisplayName("updateAlbumById: should update album")
+    public void testUpdateAlbumByIdReturnsUpdatedAlbum() {
+        Long albumId = 1L;
+        Album existingAlbum = new Album(albumId, "Old Album", "Old Artist", Genre.Rock, 2000,
+                LocalDateTime.now().minusYears(1), LocalDateTime.now().minusYears(1));
+
+        Album updatedAlbum = new Album(albumId, "New Album", "New Artist", Genre.Classical, 2099,
+                existingAlbum.getCreatedAt(), LocalDateTime.now());
+
+        when(mockAlbumRepository.findById(albumId)).thenReturn(Optional.of(existingAlbum));
+        when(mockAlbumRepository.save(any(Album.class))).thenReturn(updatedAlbum);
+
+        Album result = albumServiceImpl.updateAlbumById(albumId, updatedAlbum);
+
+        assertThat(result).isNotNull();
+        assertThat(result).hasFieldOrPropertyWithValue("id", 1L);
+        assertThat(result).hasFieldOrPropertyWithValue("name", "New Album");
+        assertThat(result).hasFieldOrPropertyWithValue("artist", "New Artist");
+        assertThat(result).hasFieldOrPropertyWithValue("genre", Genre.Classical);
+        assertThat(result).hasFieldOrPropertyWithValue("releaseYear", 2099);
+        assertThat(result).hasFieldOrPropertyWithValue("createdAt", existingAlbum.getCreatedAt());
+        assertThat(result).hasFieldOrPropertyWithValue("modifiedAt", updatedAlbum.getModifiedAt());
+
+        verify(mockAlbumRepository, times(1)).findById(albumId);
+        verify(mockAlbumRepository, times(1)).save(any(Album.class));
+    }
 }
