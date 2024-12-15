@@ -1,5 +1,6 @@
 package recordshop.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "albums")
 @Entity
 public class Album {
     @Id
@@ -22,8 +24,10 @@ public class Album {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String artist;
+    @ManyToOne
+    @JoinColumn(name = "artist_id", nullable = false)
+    @JsonBackReference
+    private Artist artist;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -32,7 +36,10 @@ public class Album {
     @Column(name = "release_year", nullable = false)
     private Integer releaseYear;
 
-    @Column(name = "created_at")
+    @Column(name = "stock_quantity", nullable = false)
+    private Integer stockQuantity;
+
+    @Column(name = "created_at", updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
     @CreationTimestamp
     private LocalDateTime createdAt;
