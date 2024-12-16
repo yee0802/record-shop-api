@@ -1,7 +1,7 @@
 package recordshop.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,34 +10,24 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "albums")
+@Table(name = "artists")
 @Entity
-public class Album {
+public class Artist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "artist_id", nullable = false)
-    @JsonBackReference
-    private Artist artist;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Genre genre;
-
-    @Column(name = "release_year", nullable = false)
-    private Integer releaseYear;
-
-    @Column(name = "stock_quantity", nullable = false)
-    private Integer stockQuantity;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Album> albums;
 
     @Column(name = "created_at", updatable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC")
