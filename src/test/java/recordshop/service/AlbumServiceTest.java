@@ -151,6 +151,7 @@ public class AlbumServiceTest {
         Album updatedAlbum = new Album(albumId, "new album", artist, Genre.Classical, 2099, 99,
                 existingAlbum.getCreatedAt(), LocalDateTime.now());
 
+        when(mockArtistRepository.findByName("artist")).thenReturn(artist);
         when(mockAlbumRepository.findById(albumId)).thenReturn(Optional.of(existingAlbum));
         when(mockAlbumRepository.save(any(Album.class))).thenReturn(updatedAlbum);
 
@@ -166,6 +167,7 @@ public class AlbumServiceTest {
         assertThat(result).hasFieldOrPropertyWithValue("createdAt", existingAlbum.getCreatedAt());
         assertThat(result).hasFieldOrPropertyWithValue("modifiedAt", updatedAlbum.getModifiedAt());
 
+        verify(mockArtistRepository, times(1)).findByName("artist");
         verify(mockAlbumRepository, times(1)).findById(albumId);
         verify(mockAlbumRepository, times(1)).save(any(Album.class));
     }
