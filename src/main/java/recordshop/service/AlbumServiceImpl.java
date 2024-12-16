@@ -33,7 +33,7 @@ public class AlbumServiceImpl implements AlbumService {
     @Override
     public Album getAlbumById(Long id) {
         return albumRepository.findById(id)
-                .orElseThrow(() -> new ItemNotFoundException(String.format("Item with id '%s' could not be found", id)));
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Album with id '%s' could not be found", id)));
     }
 
     @Override
@@ -89,7 +89,7 @@ public class AlbumServiceImpl implements AlbumService {
     @Override
     public void deleteAlbumById(Long id) {
         albumRepository.findById(id)
-                .orElseThrow(() -> new ItemNotFoundException(String.format("Item with id '%s' could not be found", id)));
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Album with id '%s' could not be found", id)));
 
         albumRepository.deleteById(id);
     }
