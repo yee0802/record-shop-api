@@ -63,7 +63,7 @@ public class AlbumServiceImpl implements AlbumService {
     @Override
     public Album updateAlbumById(Long id, Album album) {
         Album foundAlbum = albumRepository.findById(id)
-                .orElseThrow(() -> new ItemNotFoundException(String.format("Item with id '%s' could not be found", id)));
+                .orElseThrow(() -> new ItemNotFoundException(String.format("Album with id '%s' could not be found", id)));
 
         boolean hasValidFields = requestBodyHasValidFields(album);
 
@@ -74,7 +74,7 @@ public class AlbumServiceImpl implements AlbumService {
         Artist artist = artistRepository.findByName(album.getArtist().getName());
 
         if (artist == null) {
-            artist = artistRepository.save(album.getArtist());
+            throw new ItemNotFoundException(String.format("Artist with id '%s' could not be found", id));
         }
 
         foundAlbum.setName(album.getName());
