@@ -1,6 +1,9 @@
 package recordshop.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import recordshop.exception.ItemNotFoundException;
 import recordshop.exception.MissingFieldException;
@@ -31,6 +34,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    @Cacheable(cacheNames = "albums", key = "#id")
     public Album getAlbumById(Long id) {
         return albumRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(String.format("Album with id '%s' could not be found", id)));
@@ -61,6 +65,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    @CachePut(cacheNames = "albums", key = "#id")
     public Album updateAlbumById(Long id, Album album) {
         Album foundAlbum = albumRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(String.format("Album with id '%s' could not be found", id)));
@@ -87,6 +92,7 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "albums", key = "#id")
     public void deleteAlbumById(Long id) {
         albumRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(String.format("Album with id '%s' could not be found", id)));
