@@ -1,13 +1,13 @@
 package recordshop.service;
 
-import recordshop.model.Album;
+import recordshop.dto.AlbumDTO;
 
 import java.util.List;
 
 public interface AlbumService {
-    List<Album> getAllAlbums();
-    Album getAlbumById(Long id);
-    Album addAlbum(Album album);
-    Album updateAlbumById(Long id, Album album);
+    List<AlbumDTO> getAllAlbums();
+    AlbumDTO getAlbumById(Long id);
+    AlbumDTO addAlbum(AlbumDTO albumDTO);
+    AlbumDTO updateAlbumById(Long id, AlbumDTO albumDTO);
     void deleteAlbumById(Long id);
 }

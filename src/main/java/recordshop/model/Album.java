@@ -33,6 +33,9 @@ public class Album {
     @Enumerated(EnumType.STRING)
     private Genre genre;
 
+    @Column(name = "cover_art_url")
+    private String coverArtUrl;
+
     @Column(name = "release_year", nullable = false)
     private Integer releaseYear;
 
