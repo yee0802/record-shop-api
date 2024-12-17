@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import recordshop.model.Album;
+import recordshop.dto.AlbumDTO;
 import recordshop.service.AlbumService;
 
 import java.util.List;
@@ -17,25 +17,25 @@ public class AlbumController {
     private AlbumService albumService;
 
     @GetMapping
-    public ResponseEntity<List<Album>> getAllAlbums() {
-        List<Album> albums = albumService.getAllAlbums();
+    public ResponseEntity<List<AlbumDTO>> getAllAlbums() {
+        List<AlbumDTO> albums = albumService.getAllAlbums();
 
         return new ResponseEntity<>(albums, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Album> getAlbumById(@PathVariable Long id) {
+    public ResponseEntity<AlbumDTO> getAlbumById(@PathVariable Long id) {
         return new ResponseEntity<>(albumService.getAlbumById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Album> addAlbum(@RequestBody Album album) {
-        return new ResponseEntity<>(albumService.addAlbum(album), HttpStatus.CREATED);
+    public ResponseEntity<AlbumDTO> addAlbum(@RequestBody AlbumDTO albumDTO) {
+        return new ResponseEntity<>(albumService.addAlbum(albumDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Album> updateAlbumById(@PathVariable Long id, @RequestBody Album album) {
-        return new ResponseEntity<>(albumService.updateAlbumById(id, album), HttpStatus.OK);
+    public ResponseEntity<AlbumDTO> updateAlbumById(@PathVariable Long id, @RequestBody AlbumDTO albumDTO) {
+        return new ResponseEntity<>(albumService.updateAlbumById(id, albumDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
