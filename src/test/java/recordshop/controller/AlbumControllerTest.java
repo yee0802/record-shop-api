@@ -13,9 +13,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import recordshop.dto.AlbumDTO;
+import recordshop.dto.ArtistDTO;
 import recordshop.model.Album;
 import recordshop.model.Artist;
 import recordshop.model.Genre;
@@ -25,10 +25,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -42,96 +41,107 @@ public class AlbumControllerTest {
     @Autowired
     private MockMvc mockMvcController;
 
+    private AlbumDTO albumDTO;
+    private ArtistDTO artistDTO;
+
     @BeforeEach
     public void setup(){
         mockMvcController = MockMvcBuilders.standaloneSetup(albumController).build();
+
+        var artist = new Artist(1L, "artist_name", null, LocalDateTime.now(), LocalDateTime.now());
+        var album = new Album(1L,
+                "album_name",
+                artist,
+                Genre.Electronic,
+                "https://example.com/cover-art.webp",
+                2020,
+                88,
+                LocalDateTime.now(),
+                LocalDateTime.now());
+
+        artistDTO = new ArtistDTO(artist.getId(),
+                artist.getName(),
+                artist.getCreatedAt(),
+                artist.getModifiedAt());
+
+        albumDTO = new AlbumDTO(album.getId(),
+                album.getName(),
+                artistDTO,
+                album.getGenre(),
+                album.getCoverArtUrl(),
+                album.getReleaseYear(),
+                album.getStockQuantity(),
+                album.getCreatedAt(),
+                album.getModifiedAt());
     }
 
     @Test
     @DisplayName("GET /albums - returns all albums")
     public void testGetAllAlbumsReturnsAlbums() throws Exception {
-        Artist artist = new Artist(1L, "artist", new ArrayList<>(), LocalDateTime.now(), LocalDateTime.now());
-        List<Album> albumList = new ArrayList<>();
-        albumList.add(new Album(1L, "album1", artist, Genre.Classical, 2024, 1, LocalDateTime.now(), LocalDateTime.now()));
-        albumList.add(new Album(2L, "album2", artist, Genre.Blues, 1978, 2, LocalDateTime.now(), LocalDateTime.now()));
-        albumList.add(new Album(3L, "album3", artist, Genre.Electronic, 1997, 3, LocalDateTime.now(), LocalDateTime.now()));
+        List<AlbumDTO> albumDTOList = new ArrayList<>();
+        albumDTOList.add(new AlbumDTO(1L, "album1", artistDTO, Genre.Classical, "https://example.com/cover-art.webp", 2024, 1, LocalDateTime.now(), LocalDateTime.now()));
+        albumDTOList.add(new AlbumDTO(2L, "album2", artistDTO, Genre.Blues,"https://example.com/cover-art.webp", 1978, 2, LocalDateTime.now(), LocalDateTime.now()));
+        albumDTOList.add(new AlbumDTO(3L, "album3", artistDTO, Genre.Electronic,"https://example.com/cover-art.webp", 1997, 3, LocalDateTime.now(), LocalDateTime.now()));
 
-        when(mockAlbumServiceImpl.getAllAlbums()).thenReturn(albumList);
+        when(mockAlbumServiceImpl.getAllAlbums()).thenReturn(albumDTOList);
 
-        this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/albums"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("album1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(2))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value("album2"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id  ").value(3))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[2].name").value("album3"));
+        this.mockMvcController.perform(get("/albums"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("album1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("album2"))
+                .andExpect(jsonPath("$[2].id").value(3))
+                .andExpect(jsonPath("$[2].name").value("album3"));
     }
 
     @Test
     @DisplayName("GET /albums/:id - returns album")
     public void testGetAlbumByIdReturnsAlbum() throws Exception {
-        Album album = new Album(1L, "album", new Artist(), Genre.Classical, 2024, 99, null, null);
+        when(mockAlbumServiceImpl.getAlbumById(1L)).thenReturn(albumDTO);
 
-        when(mockAlbumServiceImpl.getAlbumById(1L)).thenReturn(album);
-
-        this.mockMvcController.perform(
-                        MockMvcRequestBuilders.get("/albums/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("album"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value(String.valueOf(Genre.Classical)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2024))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stockQuantity").value(99));
+        this.mockMvcController.perform(get("/albums/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("album_name"))
+                .andExpect(jsonPath("$.genre").value(String.valueOf(Genre.Electronic)))
+                .andExpect(jsonPath("$.coverArtUrl").value("https://example.com/cover-art.webp"))
+                .andExpect(jsonPath("$.releaseYear").value(2020))
+                .andExpect(jsonPath("$.stockQuantity").value(88));
     }
 
     @Test
     @DisplayName("POST /albums - should persist & return new album")
     public void testAddAlbumReturnsNewAlbum() throws Exception {
-        Album album = new Album(1L, "album", null, Genre.Classical, 2024, 99, null, null);
+        when(mockAlbumServiceImpl.addAlbum(albumDTO)).thenReturn(albumDTO);
 
-        when(mockAlbumServiceImpl.addAlbum(album)).thenReturn(album);
-
-        this.mockMvcController.perform(
-                        MockMvcRequestBuilders.post("/albums")
+        this.mockMvcController.perform(post("/albums")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(toJSON(album)))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("album"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value(String.valueOf(Genre.Classical)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2024))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stockQuantity").value(99));
+                                .content(toJSON(albumDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("album_name"))
+                .andExpect(jsonPath("$.genre").value(String.valueOf(Genre.Electronic)))
+                .andExpect(jsonPath("$.coverArtUrl").value("https://example.com/cover-art.webp"))
+                .andExpect(jsonPath("$.releaseYear").value(2020))
+                .andExpect(jsonPath("$.stockQuantity").value(88));
     }
 
     @Test
     @DisplayName("PUT /albums/:id - should return updated album")
     public void testUpdateAlbumByIdReturnsUpdatedAlbum() throws Exception {
-        Long albumId = 1L;
-        Album updatedAlbum = new Album(
-                albumId,
-                "updated album name",
-                new Artist(),
-                Genre.Classical,
-                2025,
-                99,
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now()
-        );
+        when(mockAlbumServiceImpl.updateAlbumById(eq(1L), any(AlbumDTO.class))).thenReturn(albumDTO);
 
-        when(mockAlbumServiceImpl.updateAlbumById(eq(albumId), any(Album.class))).thenReturn(updatedAlbum);
-
-        this.mockMvcController.perform(
-                        MockMvcRequestBuilders.put("/albums/1")
+        this.mockMvcController.perform(put("/albums/1")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(toJSON(updatedAlbum)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(albumId))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("updated album name"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.genre").value("Classical"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.releaseYear").value(2025))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stockQuantity").value(99));
+                                .content(toJSON(albumDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("album_name"))
+                .andExpect(jsonPath("$.genre").value(String.valueOf(Genre.Electronic)))
+                .andExpect(jsonPath("$.coverArtUrl").value("https://example.com/cover-art.webp"))
+                .andExpect(jsonPath("$.releaseYear").value(2020))
+                .andExpect(jsonPath("$.stockQuantity").value(88));
     }
 
     @Test
@@ -139,9 +149,9 @@ public class AlbumControllerTest {
     public void testDeleteAlbumById() throws Exception {
         doNothing().when(mockAlbumServiceImpl).deleteAlbumById(1L);
 
-        this.mockMvcController.perform(MockMvcRequestBuilders.delete("/albums/1"))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Album with id '1' successfully deleted"));
+        this.mockMvcController.perform(delete("/albums/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Album with id '1' successfully deleted"));
     }
 
     private String toJSON(Object obj) {
