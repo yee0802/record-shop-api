@@ -20,6 +20,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(createErrorResponse(400, e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<Object> handleUnavailableRouteException(UnavailableRouteException e) {
+        return new ResponseEntity<>(createErrorResponse(404, e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     private ErrorResponse createErrorResponse(int statusCode, String message) {
         ErrorResponse responseObj = new ErrorResponse();
 
