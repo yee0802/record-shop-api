@@ -89,6 +89,11 @@ public class AlbumServiceImpl implements AlbumService {
         foundAlbum.setName(albumDTO.getName());
         foundAlbum.setArtist(artist);
         foundAlbum.setGenre(albumDTO.getGenre());
+
+        if (albumDTO.getCoverArtUrl() != null) {
+            foundAlbum.setCoverArtUrl(albumDTO.getCoverArtUrl());
+        }
+
         foundAlbum.setReleaseYear(albumDTO.getReleaseYear());
         foundAlbum.setStockQuantity(albumDTO.getStockQuantity());
 
