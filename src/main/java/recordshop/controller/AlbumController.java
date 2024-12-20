@@ -42,8 +42,6 @@ public class AlbumController {
     public ResponseEntity<String> deleteAlbumById(@PathVariable Long id) {
         albumService.deleteAlbumById(id);
 
-        return new ResponseEntity<>(
-                String.format("Album with id '%s' successfully deleted", id),
-                HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
