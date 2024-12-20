@@ -150,8 +150,7 @@ public class AlbumControllerTest {
         doNothing().when(mockAlbumServiceImpl).deleteAlbumById(1L);
 
         this.mockMvcController.perform(delete("/albums/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Album with id '1' successfully deleted"));
+                .andExpect(status().isNoContent());
     }
 
     private String toJSON(Object obj) {
