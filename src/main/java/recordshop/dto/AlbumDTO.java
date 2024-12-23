@@ -3,7 +3,6 @@ package recordshop.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import recordshop.model.Genre;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +13,7 @@ public class AlbumDTO {
     private Long id;
     private String name;
     private ArtistDTO artist;
-    private Genre genre;
+    private String genre;
     private String coverArtUrl;
     private Integer releaseYear;
     private Integer stockQuantity;
