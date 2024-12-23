@@ -30,8 +30,7 @@ public class Album {
     private Artist artist;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Genre genre;
+    private String genre;
 
     @Column(name = "cover_art_url")
     private String coverArtUrl;

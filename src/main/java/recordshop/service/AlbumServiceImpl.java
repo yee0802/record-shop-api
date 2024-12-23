@@ -27,10 +27,18 @@ public class AlbumServiceImpl implements AlbumService {
     ArtistRepository artistRepository;
 
     @Override
-    public List<AlbumDTO> getAllAlbums() {
+    public List<AlbumDTO> getAllAlbums(String genre, Integer releaseYear, String artistName) {
         List<Album> albums = new ArrayList<>();
 
-        albumRepository.findAll().forEach(albums::add);
+        if (genre != null) {
+            albums.addAll(albumRepository.findAllByGenre(genre));
+        } else if (releaseYear != null) {
+            albums.addAll(albumRepository.findAllByReleaseYear(releaseYear));
+        } else if (artistName != null) {
+            albums.addAll(albumRepository.findAllByArtistName(artistName));
+        } else {
+            albumRepository.findAll().forEach(albums::add);
+        }
 
         return albums.stream()
                 .map(this::mapToDTO)
@@ -89,6 +97,11 @@ public class AlbumServiceImpl implements AlbumService {
         foundAlbum.setName(albumDTO.getName());
         foundAlbum.setArtist(artist);
         foundAlbum.setGenre(albumDTO.getGenre());
+
+        if (albumDTO.getCoverArtUrl() != null) {
+            foundAlbum.setCoverArtUrl(albumDTO.getCoverArtUrl());
+        }
+
         foundAlbum.setReleaseYear(albumDTO.getReleaseYear());
         foundAlbum.setStockQuantity(albumDTO.getStockQuantity());
 

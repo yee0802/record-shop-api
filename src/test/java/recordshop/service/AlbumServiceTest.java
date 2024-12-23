@@ -12,7 +12,6 @@ import recordshop.exception.ItemNotFoundException;
 import recordshop.exception.MissingFieldException;
 import recordshop.model.Album;
 import recordshop.model.Artist;
-import recordshop.model.Genre;
 import recordshop.repository.AlbumRepository;
 import recordshop.repository.ArtistRepository;
 
@@ -50,7 +49,7 @@ public class AlbumServiceTest {
         album = new Album(1L,
                 "album_name",
                 artist,
-                Genre.Rock,
+                "Rock",
                 "https://example.com/cover-art.webp",
                 2000,
                 99,
@@ -72,13 +71,13 @@ public class AlbumServiceTest {
     @DisplayName("getAllAlbums: should return list of albums")
     public void testGetAllAlbumsReturnsListOfAlbums() {
         List<Album> albumList = new ArrayList<>();
-        albumList.add(new Album(1L, "album1", artist, Genre.Classical, "https://example.com/cover-art.webp", 2024, 1, LocalDateTime.now(), LocalDateTime.now()));
-        albumList.add(new Album(2L, "album2", artist, Genre.Blues,"https://example.com/cover-art.webp", 1978, 2, LocalDateTime.now(), LocalDateTime.now()));
-        albumList.add(new Album(3L, "album3", artist, Genre.Electronic,"https://example.com/cover-art.webp", 1997, 3, LocalDateTime.now(), LocalDateTime.now()));
+        albumList.add(new Album(1L, "album1", artist, "Classic", "https://example.com/cover-art.webp", 2024, 1, LocalDateTime.now(), LocalDateTime.now()));
+        albumList.add(new Album(2L, "album2", artist, "Blues","https://example.com/cover-art.webp", 1978, 2, LocalDateTime.now(), LocalDateTime.now()));
+        albumList.add(new Album(3L, "album3", artist, "Electronic","https://example.com/cover-art.webp", 1997, 3, LocalDateTime.now(), LocalDateTime.now()));
 
         when(mockAlbumRepository.findAll()).thenReturn(albumList);
 
-        List<AlbumDTO> actualResult = albumServiceImpl.getAllAlbums();
+        List<AlbumDTO> actualResult = albumServiceImpl.getAllAlbums(null, null, null);
         AlbumDTO albumDTO1 = actualResult.getFirst();
         AlbumDTO albumDTO2 = actualResult.get(1);
         AlbumDTO albumDTO3 = actualResult.getLast();
@@ -101,7 +100,7 @@ public class AlbumServiceTest {
         assertThat(result).hasFieldOrPropertyWithValue("id", 1L);
         assertThat(result).hasFieldOrPropertyWithValue("name", "album_name");
         assertThat(result).hasFieldOrPropertyWithValue("artist.name", "artist_name");
-        assertThat(result).hasFieldOrPropertyWithValue("genre", Genre.Rock);
+        assertThat(result).hasFieldOrPropertyWithValue("genre", "Rock");
         assertThat(result).hasFieldOrPropertyWithValue("coverArtUrl", "https://example.com/cover-art.webp");
         assertThat(result).hasFieldOrPropertyWithValue("releaseYear", 2000);
         assertThat(result).hasFieldOrPropertyWithValue("stockQuantity", 99);
@@ -131,7 +130,7 @@ public class AlbumServiceTest {
         assertThat(result).hasFieldOrPropertyWithValue("id", 1L);
         assertThat(result).hasFieldOrPropertyWithValue("name", "album_name");
         assertThat(result).hasFieldOrPropertyWithValue("artist.name", "artist_name");
-        assertThat(result).hasFieldOrPropertyWithValue("genre", Genre.Rock);
+        assertThat(result).hasFieldOrPropertyWithValue("genre", "Rock");
         assertThat(result).hasFieldOrPropertyWithValue("coverArtUrl", "https://example.com/cover-art.webp");
         assertThat(result).hasFieldOrPropertyWithValue("releaseYear", 2000);
         assertThat(result).hasFieldOrPropertyWithValue("stockQuantity", 99);
@@ -154,7 +153,7 @@ public class AlbumServiceTest {
         assertThat(result).hasFieldOrPropertyWithValue("id", 1L);
         assertThat(result).hasFieldOrPropertyWithValue("name", "album_name");
         assertThat(result).hasFieldOrPropertyWithValue("artist.name", "artist_name");
-        assertThat(result).hasFieldOrPropertyWithValue("genre", Genre.Rock);
+        assertThat(result).hasFieldOrPropertyWithValue("genre", "Rock");
         assertThat(result).hasFieldOrPropertyWithValue("coverArtUrl", "https://example.com/cover-art.webp");
         assertThat(result).hasFieldOrPropertyWithValue("releaseYear", 2000);
         assertThat(result).hasFieldOrPropertyWithValue("stockQuantity", 99);
@@ -168,7 +167,7 @@ public class AlbumServiceTest {
     @DisplayName("addAlbum: should throw MissingFieldException when attempting to add a Album with missing/null fields")
     public void testAddAlbumThrowsWhenMissingFields() {
         Album invalidAlbum = new Album();
-        invalidAlbum.setGenre(Genre.Blues);
+        invalidAlbum.setGenre("Blues");
 
         AlbumDTO invalidAlbumDTO = new AlbumDTO();
         invalidAlbumDTO.setGenre(invalidAlbum.getGenre());
@@ -194,7 +193,7 @@ public class AlbumServiceTest {
         assertThat(result).hasFieldOrPropertyWithValue("id", 1L);
         assertThat(result).hasFieldOrPropertyWithValue("name", "album_name");
         assertThat(result).hasFieldOrPropertyWithValue("artist.name", "artist_name");
-        assertThat(result).hasFieldOrPropertyWithValue("genre", Genre.Rock);
+        assertThat(result).hasFieldOrPropertyWithValue("genre", "Rock");
         assertThat(result).hasFieldOrPropertyWithValue("coverArtUrl", "https://example.com/cover-art.webp");
         assertThat(result).hasFieldOrPropertyWithValue("releaseYear", 2000);
         assertThat(result).hasFieldOrPropertyWithValue("stockQuantity", 99);
@@ -237,7 +236,7 @@ public class AlbumServiceTest {
         assertThat(result).hasFieldOrPropertyWithValue("name", "album_name");
         assertThat(result.getArtist()).isNotNull();
         assertThat(result).hasFieldOrPropertyWithValue("artist.name", "artist_name");
-        assertThat(result).hasFieldOrPropertyWithValue("genre", Genre.Rock);
+        assertThat(result).hasFieldOrPropertyWithValue("genre", "Rock");
         assertThat(result).hasFieldOrPropertyWithValue("coverArtUrl", "https://example.com/cover-art.webp");
         assertThat(result).hasFieldOrPropertyWithValue("releaseYear", 2000);
         assertThat(result).hasFieldOrPropertyWithValue("stockQuantity", 99);
@@ -253,7 +252,7 @@ public class AlbumServiceTest {
         assertThat(result).hasFieldOrPropertyWithValue("name", "album_name");
         assertThat(result.getArtist()).isNotNull();
         assertThat(result).hasFieldOrPropertyWithValue("artist.name", "artist_name");
-        assertThat(result).hasFieldOrPropertyWithValue("genre", Genre.Rock);
+        assertThat(result).hasFieldOrPropertyWithValue("genre", "Rock");
         assertThat(result).hasFieldOrPropertyWithValue("coverArtUrl", "https://example.com/cover-art.webp");
         assertThat(result).hasFieldOrPropertyWithValue("releaseYear", 2000);
         assertThat(result).hasFieldOrPropertyWithValue("stockQuantity", 99);
