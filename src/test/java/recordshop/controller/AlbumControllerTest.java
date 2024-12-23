@@ -18,7 +18,6 @@ import recordshop.dto.AlbumDTO;
 import recordshop.dto.ArtistDTO;
 import recordshop.model.Album;
 import recordshop.model.Artist;
-import recordshop.model.Genre;
 import recordshop.service.AlbumServiceImpl;
 
 import java.time.LocalDateTime;
@@ -52,7 +51,7 @@ public class AlbumControllerTest {
         var album = new Album(1L,
                 "album_name",
                 artist,
-                Genre.Electronic,
+                "Electronic",
                 "https://example.com/cover-art.webp",
                 2020,
                 88,
@@ -79,11 +78,11 @@ public class AlbumControllerTest {
     @DisplayName("GET /albums - returns all albums")
     public void testGetAllAlbumsReturnsAlbums() throws Exception {
         List<AlbumDTO> albumDTOList = new ArrayList<>();
-        albumDTOList.add(new AlbumDTO(1L, "album1", artistDTO, Genre.Classical, "https://example.com/cover-art.webp", 2024, 1, LocalDateTime.now(), LocalDateTime.now()));
-        albumDTOList.add(new AlbumDTO(2L, "album2", artistDTO, Genre.Blues,"https://example.com/cover-art.webp", 1978, 2, LocalDateTime.now(), LocalDateTime.now()));
-        albumDTOList.add(new AlbumDTO(3L, "album3", artistDTO, Genre.Electronic,"https://example.com/cover-art.webp", 1997, 3, LocalDateTime.now(), LocalDateTime.now()));
+        albumDTOList.add(new AlbumDTO(1L, "album1", artistDTO, "Classic", "https://example.com/cover-art.webp", 2024, 1, LocalDateTime.now(), LocalDateTime.now()));
+        albumDTOList.add(new AlbumDTO(2L, "album2", artistDTO, "Blues","https://example.com/cover-art.webp", 1978, 2, LocalDateTime.now(), LocalDateTime.now()));
+        albumDTOList.add(new AlbumDTO(3L, "album3", artistDTO, "Electronic","https://example.com/cover-art.webp", 1997, 3, LocalDateTime.now(), LocalDateTime.now()));
 
-        when(mockAlbumServiceImpl.getAllAlbums()).thenReturn(albumDTOList);
+        when(mockAlbumServiceImpl.getAllAlbums(null, null, null)).thenReturn(albumDTOList);
 
         this.mockMvcController.perform(get("/albums"))
                 .andExpect(status().isOk())
@@ -104,7 +103,7 @@ public class AlbumControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("album_name"))
-                .andExpect(jsonPath("$.genre").value(String.valueOf(Genre.Electronic)))
+                .andExpect(jsonPath("$.genre").value("Electronic"))
                 .andExpect(jsonPath("$.coverArtUrl").value("https://example.com/cover-art.webp"))
                 .andExpect(jsonPath("$.releaseYear").value(2020))
                 .andExpect(jsonPath("$.stockQuantity").value(88));
@@ -121,7 +120,7 @@ public class AlbumControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("album_name"))
-                .andExpect(jsonPath("$.genre").value(String.valueOf(Genre.Electronic)))
+                .andExpect(jsonPath("$.genre").value("Electronic"))
                 .andExpect(jsonPath("$.coverArtUrl").value("https://example.com/cover-art.webp"))
                 .andExpect(jsonPath("$.releaseYear").value(2020))
                 .andExpect(jsonPath("$.stockQuantity").value(88));
@@ -138,7 +137,7 @@ public class AlbumControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("album_name"))
-                .andExpect(jsonPath("$.genre").value(String.valueOf(Genre.Electronic)))
+                .andExpect(jsonPath("$.genre").value("Electronic"))
                 .andExpect(jsonPath("$.coverArtUrl").value("https://example.com/cover-art.webp"))
                 .andExpect(jsonPath("$.releaseYear").value(2020))
                 .andExpect(jsonPath("$.stockQuantity").value(88));
